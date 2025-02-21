@@ -349,6 +349,16 @@ crate_: lib.makeOverridable
         ++ extraRustcOptsForBuildRs_
         ++ (lib.optional (edition != null) "--edition ${edition}");
 
+      unpackPhase = ''
+        runHook preUnpack
+        if [[ "$src" == *.crate ]]; then
+          echo "Detected .crate file, treating as tar.gz"
+          tar xzf "$src"
+        else
+          eval "$unpackCmd"
+        fi
+        runHook postUnpack
+      '';
 
       configurePhase = configureCrate {
         inherit crateName crateType buildDependencies completeDeps completeBuildDeps crateDescription
